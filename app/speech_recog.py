@@ -13,6 +13,7 @@ def transcribe_file(video_name, verbose=False):
         print('input file not found')
         exit()
     if not os.path.exists(audio_path):
+        print(f'generating .wav from ({video_path} at {audio_path}')
         audioclip = VideoFileClip(video_path)
         audioclip.audio.write_audiofile(audio_path)
 

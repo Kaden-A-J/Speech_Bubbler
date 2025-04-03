@@ -1,8 +1,8 @@
 # Takes a video file, isolates who is talking, then generates a speech bubble with subtitles
 
-# Input video file
+#✅ Input video file
 
-# Generate text of what is being said
+#✅ Generate text of what is being said
 
 # Identify and isolate the location of people in shot
 # - Give each person a unique lable to keep track of them between frames
@@ -15,6 +15,8 @@
 # Make a speech bubble that tries not to overlap people
 
 # Generate subtitles real time in the speech bubble
+
+#✅ Make README
 
 import cv2
 import speech_recog
