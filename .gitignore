@@ -6,3 +6,4 @@ whisper_models
 *.wav
 .venv/
 *output
+!moby_dick_10sec.mp4
