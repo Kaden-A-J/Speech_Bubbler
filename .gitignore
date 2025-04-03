@@ -1,5 +1,8 @@
+__pycache__
+whisper_models
 *.mp4
 *.png
 *.mp3
 *.wav
 .venv/
+*output

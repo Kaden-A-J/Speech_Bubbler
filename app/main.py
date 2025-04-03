@@ -48,9 +48,9 @@ def frame_count(video_path, manual=False):
     return frames
 
 
-video_name = 'moby_dick_1min'
-video_path = f'res/video/{video_name}.mp4'
-audio_path = f'res/audio/{video_name}.wav'
+video_name = 'moby_dick_10sec'
+video_path = f'./app/res/video/{video_name}.mp4'
+audio_path = f'./app/res/audio/{video_name}.wav'
 
 transcription = speech_recog.transcribe_file(video_name=video_name)
 
@@ -68,7 +68,7 @@ while(cap.isOpened()):
 
     if frame_exists:
         
-        frame = face_tracking.project_face_tracking(frame)
+        frame = face_tracking.project_face_tracking(frame, features=False)
 
         frame = speech_recog.project_speech_recognition(frame, cap, transcription, frame_no)
 
@@ -95,7 +95,7 @@ height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 fps = cap.get(cv2.CAP_PROP_FPS)
 
 newframes = []
-writer = cv2.VideoWriter("audioless.mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, (int(width), int(height)))
+writer = cv2.VideoWriter('audioless.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(width), int(height)))
 
 for i in range(0, len(frames)):
     newframes.append(frames[i])
@@ -108,10 +108,10 @@ cv2.destroyAllWindows()
 
 
 audio = mp.AudioFileClip(audio_path)
-video = mp.VideoFileClip("audioless.mp4")
+video = mp.VideoFileClip('audioless.mp4')
 video.audio = audio
 
-video.write_videofile("output.mp4")
+video.write_videofile(f'app/res/processed/{video_name}-processed.mp4')
 
 if os.path.exists('audioless.mp4'):
     os.remove('audioless.mp4')
