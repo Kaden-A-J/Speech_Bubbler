@@ -13,9 +13,11 @@ A python app that takes input video file(s) and generates a modified version wit
 ## Installing
 ### Docker (recommended)
 - Install [Docker Desktop](https://www.docker.com/)
+- Make sure Docker Desktop is running and the Docker engine is initialized
 - Download and extract this repository
 - First time use requires running ```BUILD.bat```
   - This can take upwards of 30 minutes on low end machines because OpenAI-Whisper is absolutely massive
+  - **NOTE:** For non-windows systems, you must manually download the whisper model ```small.en.pt``` from [here](https://openaipublic.azureedge.net/main/whisper/models/f953ad0fd29cacd07d5a9eda5624af0f6bcf2258be67c92b79389873d91e0872/small.en.pt) and place it in ```/app/whisper_models/``` BEFORE building
 
 #### After built, ```RUN.bat``` can be used to initiate the app
 ---
