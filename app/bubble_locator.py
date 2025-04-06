@@ -18,12 +18,14 @@ class bubble_locator():
 
 
     def update(self, face_points, bounding_box):
-        if self.frame_count == 0:
+        if self.frame_count % 100 == 0:
             self.reset_points(bounding_box, self.num_points)
 
-        for i in range(10):
-            self.settle_points(face_points)
+            for i in range(200):
+                self.settle_points(face_points)
         
+        self.settle_points(face_points)
+
         self.frame_count += 1
     
 
@@ -59,16 +61,6 @@ class bubble_locator():
     def settle_points(self, face_points):
 
         for i, point in enumerate(self.points):
-            # repelled from walls
-            # self.points[i][0] += self.REPULSION_SCALE/self.points[i][0]
-            # self.points[i][0] += -(self.REPULSION_SCALE/(self.bounding_box[0] - self.points[i][0]))
-
-            # self.points[i][1] += self.REPULSION_SCALE/self.points[i][1]
-            # self.points[i][1] += -(self.REPULSION_SCALE/(self.bounding_box[1] - self.points[i][1]))
-
-            # repelled from points
-            # for j, face_point in enumerate(face_points):
-            #     self.points[i] = self.shove_point_dynamic(face_point, self.points[i], 1, 5)
 
             base_distance = 25
             scaling_factor = 100

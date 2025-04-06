@@ -51,7 +51,7 @@ def frame_count(video_path, manual=False):
     return frames
 
 
-video_name = 'moby_dick_1min'
+video_name = 'moby_dick_10sec'
 video_path = f'./app/res/video/{video_name}.mp4'
 audio_path = f'./app/res/audio/{video_name}.wav'
 
@@ -59,9 +59,13 @@ transcription = speech_recog.transcribe_file(video_name=video_name)
 
 cap = cv2.VideoCapture(video_path)
 
+width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+fps = cap.get(cv2.CAP_PROP_FPS)
+writer = cv2.VideoWriter('audioless.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(width), int(height)))
+
 _bubble_locator = bubble_locator.bubble_locator()
 
-frames = []
 frame_no = 0
 total_frames = frame_count(video_path)
 while(cap.isOpened()):
@@ -87,7 +91,7 @@ while(cap.isOpened()):
 
         frame = speech_recog.project_speech_recognition(frame, cap, transcription, frame_no)
 
-        frames.append(frame)
+        writer.write(frame)
 
         # cv2.imshow('frame',frame)
         # if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -105,17 +109,6 @@ while(cap.isOpened()):
     frame_no += 1
 
 
-width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-fps = cap.get(cv2.CAP_PROP_FPS)
-
-newframes = []
-writer = cv2.VideoWriter('audioless.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(width), int(height)))
-
-for i in range(0, len(frames)):
-    newframes.append(frames[i])
-    writer.write(frames[i])  # write frame into output vid
-
 writer.release()
 
 cap.release()
@@ -126,7 +119,7 @@ audio = mp.AudioFileClip(audio_path)
 video = mp.VideoFileClip('audioless.mp4')
 video.audio = audio
 
-video.write_videofile(f'app/res/processed/{video_name}-processed.mp4')
+video.write_videofile(f'app/res/processed/{video_name}_processed.mp4')
 
 if os.path.exists('audioless.mp4'):
     os.remove('audioless.mp4')
