@@ -4,6 +4,7 @@ import cv2
 
 DOWNSCALE_FACTOR = 8
 
+
 def project_face_tracking(frame, features=True, box=True):
     small_frame = cv2.resize(frame, (0, 0), fx=1/DOWNSCALE_FACTOR, fy=1/DOWNSCALE_FACTOR)
 
@@ -17,7 +18,7 @@ def project_face_tracking(frame, features=True, box=True):
                         break
                     cv2.line(frame, np.array(item)*DOWNSCALE_FACTOR, np.array(face_landmarks[facial_feature][index + 1])*DOWNSCALE_FACTOR, [0, 255, 0], 2) 
     
-
+    face_points = []
     if box:
         face_locations = face_recognition.face_locations(small_frame)
         if face_locations:
@@ -27,5 +28,6 @@ def project_face_tracking(frame, features=True, box=True):
             left = face_locations[0][3] * DOWNSCALE_FACTOR
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
+            face_points.append(((right + left) / 2, (top + bottom) / 2))
 
-    return frame
+    return frame, face_points

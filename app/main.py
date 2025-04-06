@@ -21,6 +21,7 @@
 import cv2
 import speech_recog
 import face_tracking
+import bubble_locator
 import time
 import moviepy as mp
 import os
@@ -50,13 +51,15 @@ def frame_count(video_path, manual=False):
     return frames
 
 
-video_name = 'moby_dick_10sec'
+video_name = 'moby_dick_1min'
 video_path = f'./app/res/video/{video_name}.mp4'
 audio_path = f'./app/res/audio/{video_name}.wav'
 
 transcription = speech_recog.transcribe_file(video_name=video_name)
 
 cap = cv2.VideoCapture(video_path)
+
+_bubble_locator = bubble_locator.bubble_locator()
 
 frames = []
 frame_no = 0
@@ -70,7 +73,17 @@ while(cap.isOpened()):
 
     if frame_exists:
         
-        frame = face_tracking.project_face_tracking(frame, features=False)
+        frame, face_points = face_tracking.project_face_tracking(frame, features=False)
+
+        height, width, channels = frame.shape
+        _bubble_locator.update(face_points, [width, height])
+
+        for point in face_points:
+            cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
+        # print(_bubble_locator.points)
+
+        for point in _bubble_locator.points:
+            cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 0, 255), -1)
 
         frame = speech_recog.project_speech_recognition(frame, cap, transcription, frame_no)
 
