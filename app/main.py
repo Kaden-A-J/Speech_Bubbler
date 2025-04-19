@@ -25,6 +25,7 @@ import bubble_locator
 import time
 import moviepy as mp
 import os
+import numpy as np
 
 
 def frame_count(video_path, manual=False):
@@ -88,17 +89,56 @@ while(cap.isOpened()):
         speech_bubble_border_scale = 0.1
         face_wall_x_distance = 0
 
+        bubble_rec_top_left = None
+        bubble_rec_bottom_right = None
+
+        # TODO: move this into a bubble manager class
         # TODO: make this track the currently talking face
-        if bubble_location[0] < face_points[0][0]:
-            face_wall_x_distance = face_box_top_left[0]
-        else:
-            face_wall_x_distance = width - face_box_bottom_right[1]
-        
-        bubble_rec_top_left = (int(bubble_location[0] - (face_wall_x_distance/2) + (face_wall_x_distance*speech_bubble_border_scale)),
-                                int(bubble_location[1] - 300))
-        
-        bubble_rec_bottom_right = (int(bubble_location[0] + (face_wall_x_distance/2) - (face_wall_x_distance*speech_bubble_border_scale)),
-                                    int(bubble_location[1] + 300))
+        # splits the image into 4 triangular quadrants to determine the size of the bubble based on which side of the face it is on
+        # top or bottom quadrant
+        if np.abs(face_points[0][0] - bubble_location[0]) < np.abs(face_points[0][1] - bubble_location[1]):
+            
+            # bottom quadrant
+            if bubble_location[1] > face_points[0][1]:
+
+                face_wall_y_distance = np.abs(face_box_bottom_right[0] - height)
+                bubble_rec_top_left = (int(width * speech_bubble_border_scale),
+                                        int(face_box_bottom_right[0] + (face_wall_y_distance*speech_bubble_border_scale)))
+                
+                bubble_rec_bottom_right = (int(width - (width * speech_bubble_border_scale)),
+                                            int(height - (face_wall_y_distance*speech_bubble_border_scale)))
+
+            else: # top quadrant
+
+                face_wall_y_distance = face_box_top_left[0]
+                bubble_rec_top_left = (int(width * speech_bubble_border_scale),
+                                        int(face_wall_y_distance*speech_bubble_border_scale))
+                
+                bubble_rec_bottom_right = (int(width - (width * speech_bubble_border_scale)),
+                                            int(face_wall_y_distance + (face_wall_y_distance*speech_bubble_border_scale)))
+
+        else: # left or right quadrant
+            
+            # right quadrant
+            if bubble_location[0] > face_points[0][0]:
+
+                face_wall_x_distance = np.abs(face_box_bottom_right[1] - width)
+                bubble_rec_top_left = (int(face_box_bottom_right[1] + (face_wall_x_distance*speech_bubble_border_scale)),
+                                        int(height*speech_bubble_border_scale))
+                
+                bubble_rec_bottom_right = (int(width - (face_wall_x_distance*speech_bubble_border_scale)),
+                                        int(height - (height*speech_bubble_border_scale)))
+
+            else: #left quadrant
+                                
+                face_wall_x_distance = face_box_top_left[1]
+                bubble_rec_top_left = (int(face_wall_x_distance*speech_bubble_border_scale),
+                                        int(height*speech_bubble_border_scale))
+                
+                bubble_rec_bottom_right = (int(face_wall_x_distance - (face_wall_x_distance*speech_bubble_border_scale)),
+                                        int(height - (height*speech_bubble_border_scale)))
+
+
 
         cv2.rectangle(frame, bubble_rec_top_left, bubble_rec_bottom_right, (255, 255, 255), thickness=-1)
 
