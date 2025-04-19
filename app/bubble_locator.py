@@ -1,9 +1,10 @@
 import numpy as np
+import math
 
 
 class bubble_locator():
 
-    def __init__(self, num_points=32):
+    def __init__(self, num_points=64):
         
         self.REPULSION_SCALE = 300
         self.frame_count = 0
@@ -20,7 +21,7 @@ class bubble_locator():
 
 
     def update(self, face_points, bounding_box):
-        if self.frame_count % 100 == 0:
+        if self.frame_count % 25 == 0:
             self.reset_points(bounding_box, self.num_points)
 
             for i in range(200):
@@ -35,7 +36,7 @@ class bubble_locator():
             self.smoothed_furthest_point = self.furthest_point
         else:
             # slowly shove smoothed_furthest_point towards furthest_point
-            self.smoothed_furthest_point = self.shove_point_dynamic(self.furthest_point, self.smoothed_furthest_point, 1, -0.1)
+            self.smoothed_furthest_point = self.pull_point_dynamic(self.furthest_point, self.smoothed_furthest_point, 1, 0.01)
 
         self.frame_count += 1
     
@@ -47,14 +48,14 @@ class bubble_locator():
     def find_furthest_point(self, face_points):
         furthest_distance = 0
         furthest_point = None
-        for point in self.points[1:]:
+        for point in self.points:
             curr_distance = 0
             for face_point in face_points:
                 abs_point_diff = np.abs(face_point - point)
-                curr_distance += (abs_point_diff[0] + abs_point_diff[1])
+                curr_distance += math.sqrt(abs_point_diff[0]**2 + abs_point_diff[1]**2)
 
             if curr_distance > furthest_distance:
-                curr_distance = furthest_distance
+                furthest_distance = curr_distance
                 furthest_point = point
         
         return furthest_point
@@ -62,7 +63,6 @@ class bubble_locator():
 
 
     def shove_point_dynamic(self, point1, point2, base_distance, scaling_factor):
-        import math
 
         # Calculate the direction vector from point1 to point2
         direction_x = point2[0] - point1[0]
@@ -84,11 +84,35 @@ class bubble_locator():
         
         # Move point2 farther away by the calculated distance
         new_point2 = (
-            point2[0] + normalized_x * dynamic_distance,
-            point2[1] + normalized_y * dynamic_distance
+            point2[0] + (normalized_x * dynamic_distance),
+            point2[1] + (normalized_y * dynamic_distance)
         )
         
         return new_point2
+    
+
+    def pull_point_dynamic(self, point1, point2, base_distance, scaling_factor):
+
+        direction_x = point2[0] - point1[0]
+        direction_y = point2[1] - point1[1]
+
+        magnitude = math.sqrt(direction_x**2 + direction_y**2)
+        
+        if magnitude == 0:
+            return point2
+
+        normalized_x = direction_x / magnitude
+        normalized_y = direction_y / magnitude
+
+        dynamic_distance = base_distance * (scaling_factor * magnitude)
+
+        new_point2 = (
+            point2[0] - (normalized_x * dynamic_distance),
+            point2[1] - (normalized_y * dynamic_distance)
+        )
+        
+        return new_point2
+
 
     def settle_points(self, face_points):
 

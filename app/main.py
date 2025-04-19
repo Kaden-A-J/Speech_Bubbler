@@ -52,7 +52,7 @@ def frame_count(video_path, manual=False):
     return frames
 
 
-video_name = 'moby_dick_10sec'
+video_name = 'green_eggs_and_ham_26'
 video_path = f'./app/res/video/{video_name}.mp4'
 audio_path = f'./app/res/audio/{video_name}.wav'
 
@@ -86,7 +86,7 @@ while(cap.isOpened()):
         bubble_location = _bubble_locator.get_bubble_location()
 
         # the percentage of space that should be left as a border between the speech bubble and the edge of the face and edge of the screen
-        speech_bubble_border_scale = 0.1
+        speech_bubble_border_scale = 0.2
         face_wall_x_distance = 0
 
         bubble_rec_top_left = None
@@ -115,7 +115,7 @@ while(cap.isOpened()):
                                         int(face_wall_y_distance*speech_bubble_border_scale))
                 
                 bubble_rec_bottom_right = (int(width - (width * speech_bubble_border_scale)),
-                                            int(face_wall_y_distance + (face_wall_y_distance*speech_bubble_border_scale)))
+                                            int(face_wall_y_distance - (face_wall_y_distance*speech_bubble_border_scale)))
 
         else: # left or right quadrant
             
@@ -147,8 +147,10 @@ while(cap.isOpened()):
             cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
         # print(_bubble_locator.points)
 
-        for point in [bubble_location]:
+        for point in _bubble_locator.points:
             cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 0, 255), -1)
+
+        cv2.circle(frame, (int(_bubble_locator.smoothed_furthest_point[0]), int(_bubble_locator.smoothed_furthest_point[1])), 10, (255, 0, 0), -1)
 
         frame = speech_recog.project_speech_recognition(frame, cap, transcription, frame_no)
 
