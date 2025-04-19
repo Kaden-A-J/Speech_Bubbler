@@ -65,6 +65,7 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 writer = cv2.VideoWriter('audioless.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(width), int(height)))
 
 _bubble_locator = bubble_locator.bubble_locator()
+_face_tracker = face_tracking.face_tracker()
 
 frame_no = 0
 total_frames = frame_count(video_path)
@@ -77,16 +78,36 @@ while(cap.isOpened()):
 
     if frame_exists:
         
-        frame, face_points = face_tracking.project_face_tracking(frame, features=False)
+        frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, features=False)
 
         height, width, channels = frame.shape
         _bubble_locator.update(face_points, [width, height])
+        bubble_location = _bubble_locator.get_bubble_location()
+
+        # the percentage of space that should be left as a border between the speech bubble and the edge of the face and edge of the screen
+        speech_bubble_border_scale = 0.1
+        face_wall_x_distance = 0
+
+        # TODO: make this track the currently talking face
+        if bubble_location[0] < face_points[0][0]:
+            face_wall_x_distance = face_box_top_left[0]
+        else:
+            face_wall_x_distance = width - face_box_bottom_right[1]
+        
+        bubble_rec_top_left = (int(bubble_location[0] - (face_wall_x_distance/2) + (face_wall_x_distance*speech_bubble_border_scale)),
+                                int(bubble_location[1] - 300))
+        
+        bubble_rec_bottom_right = (int(bubble_location[0] + (face_wall_x_distance/2) - (face_wall_x_distance*speech_bubble_border_scale)),
+                                    int(bubble_location[1] + 300))
+
+        cv2.rectangle(frame, bubble_rec_top_left, bubble_rec_bottom_right, (255, 255, 255), thickness=-1)
+
 
         for point in face_points:
             cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
         # print(_bubble_locator.points)
 
-        for point in [_bubble_locator.get_bubble_location()]:
+        for point in [bubble_location]:
             cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 0, 255), -1)
 
         frame = speech_recog.project_speech_recognition(frame, cap, transcription, frame_no)

@@ -30,9 +30,11 @@ class bubble_locator():
 
         self.furthest_point = self.find_furthest_point(face_points)
         
+        # if smoothed_furthest_point isn't initialized then just set it to the current furthest point
         if self.smoothed_furthest_point[0] == -1 and self.smoothed_furthest_point[1] == -1:
             self.smoothed_furthest_point = self.furthest_point
         else:
+            # slowly shove smoothed_furthest_point towards furthest_point
             self.smoothed_furthest_point = self.shove_point_dynamic(self.furthest_point, self.smoothed_furthest_point, 1, -0.1)
 
         self.frame_count += 1
