@@ -4,7 +4,7 @@ import math
 
 class bubble_locator():
 
-    def __init__(self, num_points=64):
+    def __init__(self, num_points=32):
         
         self.REPULSION_SCALE = 300
         self.frame_count = 0
@@ -21,10 +21,10 @@ class bubble_locator():
 
 
     def update(self, face_points, bounding_box):
-        if self.frame_count % 25 == 0:
+        if self.frame_count % 60 == 0:
             self.reset_points(bounding_box, self.num_points)
 
-            for i in range(200):
+            for i in range(100):
                 self.settle_points(face_points)
         
         self.settle_points(face_points)

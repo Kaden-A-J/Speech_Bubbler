@@ -28,6 +28,9 @@ import os
 import numpy as np
 
 
+BUBBLE_RECT_LOCATION_TEATHER = 300
+
+
 def frame_count(video_path, manual=False):
     def manual_count(handler):
         frames = 0
@@ -52,7 +55,7 @@ def frame_count(video_path, manual=False):
     return frames
 
 
-video_name = 'green_eggs_and_ham_26'
+video_name = 'moby_dick_10sec'
 video_path = f'./app/res/video/{video_name}.mp4'
 audio_path = f'./app/res/audio/{video_name}.wav'
 
@@ -68,6 +71,8 @@ writer = cv2.VideoWriter('audioless.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, 
 _bubble_locator = bubble_locator.bubble_locator()
 _face_tracker = face_tracking.face_tracker()
 
+
+previous_face_tracking = None
 frame_no = 0
 total_frames = frame_count(video_path)
 while(cap.isOpened()):
@@ -79,7 +84,7 @@ while(cap.isOpened()):
 
     if frame_exists:
         
-        frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, features=False)
+        frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, frame_no=frame_no, features=False)
 
         height, width, channels = frame.shape
         _bubble_locator.update(face_points, [width, height])
@@ -139,6 +144,17 @@ while(cap.isOpened()):
                                         int(height - (height*speech_bubble_border_scale)))
 
 
+        # teather bubble to not be too far away from the bubble location
+        if bubble_rec_top_left[0] < bubble_location[0] - BUBBLE_RECT_LOCATION_TEATHER:
+            bubble_rec_top_left = (int(bubble_location[0] - BUBBLE_RECT_LOCATION_TEATHER), bubble_rec_top_left[1])
+        if bubble_rec_top_left[1] < bubble_location[1] - BUBBLE_RECT_LOCATION_TEATHER:
+            bubble_rec_top_left = (bubble_rec_top_left[0], int(bubble_location[1] - BUBBLE_RECT_LOCATION_TEATHER))
+        
+        if bubble_rec_bottom_right[0] > bubble_location[0] + BUBBLE_RECT_LOCATION_TEATHER:
+            bubble_rec_bottom_right = (int(bubble_location[0] + BUBBLE_RECT_LOCATION_TEATHER), bubble_rec_bottom_right[1])
+        if bubble_rec_bottom_right[1] > bubble_location[1] + BUBBLE_RECT_LOCATION_TEATHER:
+            bubble_rec_bottom_right = (bubble_rec_bottom_right[0], int(bubble_location[1] + BUBBLE_RECT_LOCATION_TEATHER))
+
 
         cv2.rectangle(frame, bubble_rec_top_left, bubble_rec_bottom_right, (255, 255, 255), thickness=-1)
 
@@ -151,6 +167,7 @@ while(cap.isOpened()):
             cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 0, 255), -1)
 
         cv2.circle(frame, (int(_bubble_locator.smoothed_furthest_point[0]), int(_bubble_locator.smoothed_furthest_point[1])), 10, (255, 0, 0), -1)
+
 
         frame = speech_recog.project_speech_recognition(frame, cap, transcription, frame_no)
 
