@@ -10,6 +10,8 @@ class bubble_locator():
         self.num_points = num_points
         self.bounding_box = None
         self.points = None
+        self.furthest_point = None
+        self.smoothed_furthest_point = (-1, -1)
 
 
     def reset_points(self, bounding_box, num_points):
@@ -26,8 +28,36 @@ class bubble_locator():
         
         self.settle_points(face_points)
 
+        self.furthest_point = self.find_furthest_point(face_points)
+        
+        if self.smoothed_furthest_point[0] == -1 and self.smoothed_furthest_point[1] == -1:
+            self.smoothed_furthest_point = self.furthest_point
+        else:
+            self.smoothed_furthest_point = self.shove_point_dynamic(self.furthest_point, self.smoothed_furthest_point, 1, -0.1)
+
         self.frame_count += 1
     
+
+    def get_bubble_location(self):
+        return self.smoothed_furthest_point
+
+
+    def find_furthest_point(self, face_points):
+        furthest_distance = 0
+        furthest_point = None
+        for point in self.points[1:]:
+            curr_distance = 0
+            for face_point in face_points:
+                abs_point_diff = np.abs(face_point - point)
+                curr_distance += (abs_point_diff[0] + abs_point_diff[1])
+
+            if curr_distance > furthest_distance:
+                curr_distance = furthest_distance
+                furthest_point = point
+        
+        return furthest_point
+            
+
 
     def shove_point_dynamic(self, point1, point2, base_distance, scaling_factor):
         import math

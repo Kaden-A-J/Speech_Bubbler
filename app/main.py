@@ -86,7 +86,7 @@ while(cap.isOpened()):
             cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
         # print(_bubble_locator.points)
 
-        for point in _bubble_locator.points:
+        for point in [_bubble_locator.get_bubble_location()]:
             cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 0, 255), -1)
 
         frame = speech_recog.project_speech_recognition(frame, cap, transcription, frame_no)
