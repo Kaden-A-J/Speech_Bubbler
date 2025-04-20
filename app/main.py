@@ -167,7 +167,7 @@ while(cap.isOpened()):
             cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 0, 255), -1)
 
         cv2.circle(frame, (int(_bubble_locator.smoothed_furthest_point[0]), int(_bubble_locator.smoothed_furthest_point[1])), 10, (255, 0, 0), -1)
-
+        cv2.circle(frame, (int(_bubble_locator.furthest_point[0]), int(_bubble_locator.smoothed_furthest_point[1])), 10, (255, 255, 0), -1)
 
         frame = speech_recog.project_speech_recognition(frame, cap, transcription, frame_no)
 

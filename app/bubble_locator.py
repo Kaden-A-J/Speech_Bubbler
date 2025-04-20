@@ -2,6 +2,11 @@ import numpy as np
 import math
 
 
+# how many frames the bubble will 'stall' in place if the furthest point instantaneously moves a large distance
+# so the bubble won't jitter from one side of the screen to the other
+BUBBLE_FAR_MOVEMENT_FRAMES = 60
+
+
 class bubble_locator():
 
     def __init__(self, num_points=32):
@@ -11,8 +16,9 @@ class bubble_locator():
         self.num_points = num_points
         self.bounding_box = None
         self.points = None
-        self.furthest_point = None
+        self.furthest_point = (-1, -1)
         self.smoothed_furthest_point = (-1, -1)
+        self.bubble_far_movement_counter = 0
 
 
     def reset_points(self, bounding_box, num_points):
@@ -29,7 +35,23 @@ class bubble_locator():
         
         self.settle_points(face_points)
 
-        self.furthest_point = self.find_furthest_point(face_points)
+        new_furthest_point = self.find_furthest_point(face_points)
+        
+        if self.furthest_point[0] == -1 and self.furthest_point[1] == -1:
+            self.furthest_point = new_furthest_point
+
+        furthest_points_difference = np.abs(np.sqrt(new_furthest_point[0]**2 + new_furthest_point[1]**2) - np.sqrt(self.furthest_point[0]**2 + self.furthest_point[1]**2))
+
+        # if the new_furthest_point is out of range for BUBBLE_FAR_MOVEMENT_FRAMES then just reset the smoothed point to the new furthest point
+        if furthest_points_difference > np.abs(np.sqrt(bounding_box[0]**2 + bounding_box[1]**2)) / 4:
+            # don't update furthest point
+            self.bubble_far_movement_counter += 1
+            if self.bubble_far_movement_counter >= BUBBLE_FAR_MOVEMENT_FRAMES:
+                self.smoothed_furthest_point = new_furthest_point
+                self.bubble_far_movement_counter = 0
+        else:
+            self.furthest_point = new_furthest_point
+            self.bubble_far_movement_counter = 0
         
         # if smoothed_furthest_point isn't initialized then just set it to the current furthest point
         if self.smoothed_furthest_point[0] == -1 and self.smoothed_furthest_point[1] == -1:
