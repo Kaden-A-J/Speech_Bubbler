@@ -9,7 +9,7 @@ BUBBLE_FAR_MOVEMENT_FRAMES = 60
 
 class bubble_locator():
 
-    def __init__(self, num_points=32):
+    def __init__(self, bounding_box, num_points=32):
         
         self.REPULSION_SCALE = 300
         self.frame_count = 0
@@ -19,16 +19,17 @@ class bubble_locator():
         self.furthest_point = (-1, -1)
         self.smoothed_furthest_point = (-1, -1)
         self.bubble_far_movement_counter = 0
-
-
-    def reset_points(self, bounding_box, num_points):
         self.bounding_box = bounding_box
+
+
+    def reset_points(self, num_points):
+        self.bounding_box = self.bounding_box
         self.points = self.distribute_points(self.bounding_box[0], self.bounding_box[1], num_points, 0.1)
 
 
-    def update(self, face_points, bounding_box):
+    def update(self, face_points):
         if self.frame_count % 60 == 0:
-            self.reset_points(bounding_box, self.num_points)
+            self.reset_points(self.num_points)
 
             for i in range(100):
                 self.settle_points(face_points)
@@ -43,7 +44,7 @@ class bubble_locator():
         furthest_points_difference = np.abs(np.sqrt(new_furthest_point[0]**2 + new_furthest_point[1]**2) - np.sqrt(self.furthest_point[0]**2 + self.furthest_point[1]**2))
 
         # if the new_furthest_point is out of range for BUBBLE_FAR_MOVEMENT_FRAMES then just reset the smoothed point to the new furthest point
-        if furthest_points_difference > np.abs(np.sqrt(bounding_box[0]**2 + bounding_box[1]**2)) / 4:
+        if furthest_points_difference > np.abs(np.sqrt(self.bounding_box[0]**2 + self.bounding_box[1]**2)) / 4:
             # don't update furthest point
             self.bubble_far_movement_counter += 1
             if self.bubble_far_movement_counter >= BUBBLE_FAR_MOVEMENT_FRAMES:

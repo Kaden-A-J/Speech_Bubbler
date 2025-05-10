@@ -6,20 +6,21 @@ BUBBLE_RECT_LOCATION_TETHER = 300
 
 
 class bubble_manager():
-    def __init__(self):
-       self.bubble_locator = bubble_locator.bubble_locator()
+    def __init__(self, bounding_box):
+       self.bubble_locator = bubble_locator.bubble_locator(bounding_box)
        self.bubble_location = [0, 0]
+       self.bounding_box = bounding_box
     
 
     def get_bubble_rect(self):
         return self.bubble_location
 
 
-    def update(self, face_points, bounding_box, face_box):
-        self.bubble_locator.update(face_points, bounding_box)
+    def update(self, face_points, face_box):
+        self.bubble_locator.update(face_points)
         self.bubble_location = self.bubble_locator.get_bubble_location()
 
-        width, height = bounding_box
+        width, height = self.bounding_box
         face_box_top_left, face_box_bottom_right = face_box
 
 
