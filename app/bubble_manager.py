@@ -1,16 +1,46 @@
 import bubble_locator
 import numpy as np
+import cv2
 
 
 BUBBLE_RECT_LOCATION_TETHER = 300
 
 
 class bubble_manager():
-    def __init__(self, bounding_box):
-       self.bubble_locator = bubble_locator.bubble_locator(bounding_box)
-       self.bubble_location = [0, 0]
-       self.bounding_box = bounding_box
-    
+    def __init__(self, bounding_box, transcript):
+        self.bubble_locator = bubble_locator.bubble_locator(bounding_box)
+        self.bubble_location = [0, 0]
+        self.bounding_box = bounding_box
+        self.transcript = transcript
+
+        # font, font_scale, font_color, font_thickness
+        self.font_info = [cv2.FONT_HERSHEY_COMPLEX, 2, (0, 0, 0), 2]
+
+
+    def generate_text(self):
+        bubble_width = self.bubble_location[1][0] - self.bubble_location[0][0]
+        temp_text = f'{bubble_width} the quick brown gray fox jumps over the lazy dog'
+
+
+        font, font_scale, font_color, font_thickness = self.font_info
+
+        raw_text = temp_text.split()
+        text_rows = []
+        current_row = raw_text[0]
+        for word in raw_text[1:]:
+            new_row = f'{current_row} {word}'
+            if cv2.getTextSize(new_row, font, font_scale, font_thickness)[0][0] < bubble_width:
+                current_row = new_row
+                continue
+                
+            text_rows.append(current_row)
+            current_row = word
+
+        # the last row didn't overextend the width so manually add it to the list
+        text_rows.append(current_row)
+
+        return text_rows
+
 
     def get_bubble_rect(self):
         return self.bubble_location
@@ -31,7 +61,6 @@ class bubble_manager():
         bubble_rect_top_left = None
         bubble_rect_bottom_right = None
 
-        # TODO: move this into a bubble manager class
         # TODO: make this track the currently talking face
         # splits the image into 4 triangular quadrants to determine the size of the bubble based on which side of the face it is on
         # top or bottom quadrant

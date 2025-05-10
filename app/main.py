@@ -22,7 +22,6 @@ import cv2
 import speech_manager
 import face_tracking
 import bubble_manager
-import time
 import moviepy as mp
 import os
 
@@ -44,10 +43,10 @@ def __main__():
 
 
     _face_tracker = face_tracking.face_tracker()
-    _bubble_manager = bubble_manager.bubble_manager(bounding_box)
     transcription = speech_manager.transcribe_file(video_name=video_name)
+    _bubble_manager = bubble_manager.bubble_manager(bounding_box, transcription)
 
-
+    text = ''
     frame_no = 0
     total_frames = frame_count(video_path)
     while(cap.isOpened()):
@@ -62,8 +61,15 @@ def __main__():
 
             _bubble_manager.update(face_points, [face_box_top_left, face_box_bottom_right])
             bubble_rect_top_left, bubble_rect_bottom_right = _bubble_manager.get_bubble_rect()
+            bubble_text = _bubble_manager.generate_text()
 
             cv2.rectangle(frame, bubble_rect_top_left, bubble_rect_bottom_right, (255, 255, 255), thickness=-1)
+
+
+            text_offset = 50 # TODO: fix magic number
+            for idx, text in enumerate(bubble_text):
+                font, font_scale, font_color, font_thickness = _bubble_manager.font_info
+                cv2.putText(frame, text, (bubble_rect_top_left[0], text_offset + bubble_rect_top_left[1] + (text_offset * idx)), font, font_scale, font_color, font_thickness)
 
             for point in face_points:
                 cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
