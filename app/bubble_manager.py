@@ -12,14 +12,18 @@ class bubble_manager():
         self.bubble_location = [0, 0]
         self.bounding_box = bounding_box
         self.transcript = transcript
+        self.previous_bubble_size_location = (0, 0)
+        self.previous_bubble_size_rect = [0, 0]
+        self.bubble_center_offset_since_reset = (0, 0)
+        self.bubble_rect = [[0, 0], [0, 0]]
 
         # font, font_scale, font_color, font_thickness
         self.font_info = [cv2.FONT_HERSHEY_COMPLEX, 2, (0, 0, 0), 2]
 
 
     def generate_text(self):
-        bubble_width = self.bubble_location[1][0] - self.bubble_location[0][0]
-        temp_text = f'{bubble_width} the quick brown gray fox jumps over the lazy dog'
+        bubble_width = self.bubble_rect[1][0] - self.bubble_rect[0][0]
+        temp_text = f'{bubble_width}, {self.bubble_center_offset_since_reset}, the quick brown gray fox jumps over the lazy dog'
 
 
         font, font_scale, font_color, font_thickness = self.font_info
@@ -43,12 +47,33 @@ class bubble_manager():
 
 
     def get_bubble_rect(self):
-        return self.bubble_location
+        return self.bubble_rect
 
 
-    def update(self, face_points, face_box):
+    def update(self, face_points, face_box, frame_no):
         self.bubble_locator.update(face_points)
         self.bubble_location = self.bubble_locator.get_bubble_location()
+
+        self.bubble_center_offset_since_reset = (self.previous_bubble_size_location[0] - self.bubble_location[0],
+                                            self.previous_bubble_size_location[1] - self.bubble_location[1])
+        
+        if frame_no % 100 == 0:
+            self.bubble_rect = self.update_bubble_size(face_points, face_box)
+        else:
+            self.bubble_rect = self.move_bubble_rect_center(self.previous_bubble_size_rect, self.bubble_center_offset_since_reset)
+
+        
+        
+
+
+    def move_bubble_rect_center(self, previous_bubble_size_rect, bubble_center_offset_since_reset):
+        new_top_left = [int(previous_bubble_size_rect[0][0] + bubble_center_offset_since_reset[0]), int(previous_bubble_size_rect[0][1] + bubble_center_offset_since_reset[1])]
+        new_bottom_right = [int(previous_bubble_size_rect[1][0] + bubble_center_offset_since_reset[0]), int(previous_bubble_size_rect[1][1] + bubble_center_offset_since_reset[1])]
+        new_bubble_rect = [new_top_left, new_bottom_right]
+        return new_bubble_rect
+
+
+    def update_bubble_size(self, face_points, face_box):
 
         width, height = self.bounding_box
         face_box_top_left, face_box_bottom_right = face_box
@@ -117,5 +142,7 @@ class bubble_manager():
             bubble_rect_bottom_right = (int(self.bubble_location[0] + BUBBLE_RECT_LOCATION_TETHER), bubble_rect_bottom_right[1])
         if bubble_rect_bottom_right[1] > self.bubble_location[1] + BUBBLE_RECT_LOCATION_TETHER:
             bubble_rect_bottom_right = (bubble_rect_bottom_right[0], int(self.bubble_location[1] + BUBBLE_RECT_LOCATION_TETHER))
-        
-        self.bubble_location = [bubble_rect_top_left, bubble_rect_bottom_right]
+
+        self.previous_bubble_size_location = self.bubble_location
+        self.previous_bubble_size_rect = [bubble_rect_top_left, bubble_rect_bottom_right]
+        return [bubble_rect_top_left, bubble_rect_bottom_right]

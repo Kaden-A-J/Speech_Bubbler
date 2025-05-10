@@ -46,6 +46,8 @@ def __main__():
     transcription = speech_manager.transcribe_file(video_name=video_name)
     _bubble_manager = bubble_manager.bubble_manager(bounding_box, transcription)
 
+    print(transcription)
+
     text = ''
     frame_no = 0
     total_frames = frame_count(video_path)
@@ -59,7 +61,7 @@ def __main__():
         if frame_exists:
             frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, frame_no=frame_no, features=False)
 
-            _bubble_manager.update(face_points, [face_box_top_left, face_box_bottom_right])
+            _bubble_manager.update(face_points, [face_box_top_left, face_box_bottom_right], frame_no)
             bubble_rect_top_left, bubble_rect_bottom_right = _bubble_manager.get_bubble_rect()
             bubble_text = _bubble_manager.generate_text()
 
