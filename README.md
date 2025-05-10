@@ -30,6 +30,7 @@ A python app that takes input video file(s) and generates a modified version wit
 Ensure Python and FFmpeg are added to your PATH (you must restart any CMD)
 
 - Download and extract this repository
+- Download the whisper model ```small.en.pt``` from [here](https://openaipublic.azureedge.net/main/whisper/models/f953ad0fd29cacd07d5a9eda5624af0f6bcf2258be67c92b79389873d91e0872/small.en.pt) and place it in ```/app/whisper_models/```
 - Navigate a CMD to the root of the extracted app (where ```RUN.bat``` and ```BUILD.bat``` are)
 - Enter the commands:
 ```
