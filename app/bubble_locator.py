@@ -4,7 +4,7 @@ import math
 
 # how many frames the bubble will 'stall' in place if the furthest point instantaneously moves a large distance
 # so the bubble won't jitter from one side of the screen to the other
-BUBBLE_FAR_MOVEMENT_FRAMES = 60
+BUBBLE_FAR_MOVEMENT_FRAMES = 120
 
 
 class bubble_locator():

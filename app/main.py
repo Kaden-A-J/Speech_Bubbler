@@ -29,7 +29,7 @@ import os
 VERBOSE = True
 
 
-video_name = 'moby_dick_10sec'
+video_name = 'moby_dick_1min'
 video_path = f'./app/res/video/{video_name}.mp4'
 audio_path = f'./app/res/audio/{video_name}.wav'
 
@@ -46,8 +46,6 @@ def __main__():
     transcription = speech_manager.transcribe_file(video_name=video_name)
     _bubble_manager = bubble_manager.bubble_manager(bounding_box, transcription)
 
-    print(transcription)
-
     text = ''
     frame_no = 0
     total_frames = frame_count(video_path)
@@ -62,16 +60,8 @@ def __main__():
             frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, frame_no=frame_no, features=False)
 
             _bubble_manager.update(face_points, [face_box_top_left, face_box_bottom_right], frame_no)
-            bubble_rect_top_left, bubble_rect_bottom_right = _bubble_manager.get_bubble_rect()
-            bubble_text = _bubble_manager.generate_text()
 
-            cv2.rectangle(frame, bubble_rect_top_left, bubble_rect_bottom_right, (255, 255, 255), thickness=-1)
-
-
-            text_offset = 50 # TODO: fix magic number
-            for idx, text in enumerate(bubble_text):
-                font, font_scale, font_color, font_thickness = _bubble_manager.font_info
-                cv2.putText(frame, text, (bubble_rect_top_left[0], text_offset + bubble_rect_top_left[1] + (text_offset * idx)), font, font_scale, font_color, font_thickness)
+            frame = _bubble_manager.project_bubble(frame, cap)
 
             for point in face_points:
                 cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
