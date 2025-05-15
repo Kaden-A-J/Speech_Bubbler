@@ -5,16 +5,16 @@
 #✅ Generate text of what is being said
 
 # Identify and isolate the location of people in shot
-# - Give each person a unique lable to keep track of them between frames
+# - Give each person a unique label to keep track of them between frames
 
 # Determine who it talking
 # - See if lips are moving
 # - Speech recognition to identify who is talking if can't see lips
 #   - Will have to see lips moving while talking (or being the only person in shot) to initially identify
 
-# Make a speech bubble that tries not to overlap people
+#✅ Make a speech bubble that tries not to overlap people
 
-# Generate subtitles real time in the speech bubble
+#✅ Generate subtitles real time in the speech bubble
 
 #✅ Make README
 
@@ -27,20 +27,28 @@ import os
 
 
 VERBOSE = True
+DEBUG_BUBBLE_POS = False
 
 
-video_name = 'moby_dick_1min'
-video_path = f'./app/res/video/{video_name}.mp4'
-audio_path = f'./app/res/audio/{video_name}.wav'
+video_names = []
+video_paths = []
+audio_paths = []
+for c_video_name in os.listdir('./app/res/video/'):
+    no_extension_vid_name = c_video_name[:-4]
+    video_names.append(no_extension_vid_name)
+    video_paths.append(f'./app/res/video/{no_extension_vid_name}.mp4')
+    audio_paths.append(f'./app/res/audio/{no_extension_vid_name}.wav')
+
+print(f'videos found: {video_names}')
 
 
-def __main__():
+def __main__(video_name, video_path, audio_path):
     cap = cv2.VideoCapture(video_path)
 
     bounding_box = [cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT)]
     fps = cap.get(cv2.CAP_PROP_FPS)
-    writer = cv2.VideoWriter('audioless.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(bounding_box[0]), int(bounding_box[1])))
-
+    audioless_path = f'./{video_name}_audioless.mp4'
+    writer = cv2.VideoWriter(audioless_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(bounding_box[0]), int(bounding_box[1])))
 
     _face_tracker = face_tracking.face_tracker()
     transcription = speech_manager.transcribe_file(video_name=video_name)
@@ -52,27 +60,28 @@ def __main__():
     while(cap.isOpened()):
         if VERBOSE:
             if frame_no % int(total_frames/100) == 0:
-                print(f'frame: {frame_no} / {total_frames}')
+                print(f'{video_name} frame: {frame_no} / {total_frames}')
 
         frame_exists, frame = cap.read()
 
         if frame_exists:
-            frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, frame_no=frame_no, features=False)
+            frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, frame_no=frame_no, features=False, box=True, debug=False)
 
             _bubble_manager.update(face_points, [face_box_top_left, face_box_bottom_right], frame_no)
 
             frame = _bubble_manager.project_bubble(frame, cap)
 
-            for point in face_points:
-                cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
+            if DEBUG_BUBBLE_POS:
+                for point in face_points:
+                    cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
 
-            # for point in _bubble_locator.points:
-            #     cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 0, 255), -1)
+                for point in _bubble_manager.bubble_locator.points:
+                    cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 0, 255), -1)
 
-            # cv2.circle(frame, (int(_bubble_locator.smoothed_furthest_point[0]), int(_bubble_locator.smoothed_furthest_point[1])), 10, (255, 0, 0), -1)
-            # cv2.circle(frame, (int(_bubble_locator.furthest_point[0]), int(_bubble_locator.smoothed_furthest_point[1])), 10, (255, 255, 0), -1)
+                cv2.circle(frame, (int(_bubble_manager.bubble_locator.smoothed_furthest_point[0]), int(_bubble_manager.bubble_locator.smoothed_furthest_point[1])), 10, (255, 0, 0), -1)
+                cv2.circle(frame, (int(_bubble_manager.bubble_locator.furthest_point[0]), int(_bubble_manager.bubble_locator.furthest_point[1])), 10, (255, 255, 0), -1)
 
-            frame = speech_manager.project_speech_recognition(frame, cap, transcription, frame_no)
+                frame = speech_manager.project_speech_recognition(frame, cap, transcription, frame_no)
 
             writer.write(frame)
 
@@ -88,13 +97,13 @@ def __main__():
 
 
     audio = mp.AudioFileClip(audio_path)
-    video = mp.VideoFileClip('audioless.mp4')
+    video = mp.VideoFileClip(audioless_path)
     video.audio = audio
 
     video.write_videofile(f'app/res/processed/{video_name}_processed.mp4')
 
-    if os.path.exists('audioless.mp4'):
-        os.remove('audioless.mp4')
+    if os.path.exists(audioless_path):
+        os.remove(audioless_path)
 
 
 def frame_count(video_path, manual=False):
@@ -121,4 +130,5 @@ def frame_count(video_path, manual=False):
     return frames
 
 
-__main__()
+for idx, vid in enumerate(video_names):
+    __main__(video_names[idx], video_paths[idx], audio_paths[idx])

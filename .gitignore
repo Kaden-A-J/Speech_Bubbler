@@ -7,3 +7,4 @@ __pycache__
 .venv/
 *output
 !moby_dick_10sec.mp4
+*audioless*

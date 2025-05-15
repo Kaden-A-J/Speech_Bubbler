@@ -4,7 +4,7 @@ import math
 
 # how many frames the bubble will 'stall' in place if the furthest point instantaneously moves a large distance
 # so the bubble won't jitter from one side of the screen to the other
-BUBBLE_FAR_MOVEMENT_FRAMES = 120
+BUBBLE_FAR_MOVEMENT_FRAMES = 60
 
 
 class bubble_locator():
@@ -48,6 +48,7 @@ class bubble_locator():
             # don't update furthest point
             self.bubble_far_movement_counter += 1
             if self.bubble_far_movement_counter >= BUBBLE_FAR_MOVEMENT_FRAMES:
+                self.furthest_point = new_furthest_point
                 self.smoothed_furthest_point = new_furthest_point
                 self.bubble_far_movement_counter = 0
         else:
@@ -59,7 +60,8 @@ class bubble_locator():
             self.smoothed_furthest_point = self.furthest_point
         else:
             # slowly shove smoothed_furthest_point towards furthest_point
-            self.smoothed_furthest_point = self.pull_point_dynamic(self.furthest_point, self.smoothed_furthest_point, 1, 0.01)
+            self.smoothed_furthest_point = self.pull_point_dynamic(self.furthest_point, self.smoothed_furthest_point, 1, 0.1)
+            # self.smoothed_furthest_point = self.furthest_point
 
         self.frame_count += 1
     

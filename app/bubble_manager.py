@@ -92,7 +92,6 @@ class bubble_manager():
                             bubble_text = self.generate_text(new_phrase)
 
                             if (text_offset * len(bubble_text) > self.bubble_height):
-                                print('here')
                                 ending = True
                                 break
 
@@ -154,8 +153,8 @@ class bubble_manager():
 
         
     def move_bubble_rect_center(self, previous_bubble_size_rect, bubble_center_offset_since_reset):
-        new_top_left = [int(previous_bubble_size_rect[0][0] + bubble_center_offset_since_reset[0]), int(previous_bubble_size_rect[0][1] + bubble_center_offset_since_reset[1])]
-        new_bottom_right = [int(previous_bubble_size_rect[1][0] + bubble_center_offset_since_reset[0]), int(previous_bubble_size_rect[1][1] + bubble_center_offset_since_reset[1])]
+        new_top_left = [int(previous_bubble_size_rect[0][0] - bubble_center_offset_since_reset[0]), int(previous_bubble_size_rect[0][1] - bubble_center_offset_since_reset[1])]
+        new_bottom_right = [int(previous_bubble_size_rect[1][0] - bubble_center_offset_since_reset[0]), int(previous_bubble_size_rect[1][1] - bubble_center_offset_since_reset[1])]
         new_bubble_rect = [new_top_left, new_bottom_right]
         return new_bubble_rect
 

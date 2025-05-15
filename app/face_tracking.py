@@ -14,7 +14,7 @@ class face_tracker:
         self.face_landmarks_list = None
         self.face_locations = None
 
-    def project_face_tracking(self, frame, frame_no, features=True, box=True):
+    def project_face_tracking(self, frame, frame_no, features=True, box=True, debug=False):
         small_frame = None
 
         if features:
@@ -29,7 +29,8 @@ class face_tracker:
                     for index, item in enumerate(face_landmarks[facial_feature]): 
                         if index == len(face_landmarks[facial_feature]) -1:
                             break
-                        cv2.line(frame, np.array(item)*DOWNSCALE_FACTOR, np.array(face_landmarks[facial_feature][index + 1])*DOWNSCALE_FACTOR, [0, 255, 0], 2) 
+                        if debug:
+                            cv2.line(frame, np.array(item)*DOWNSCALE_FACTOR, np.array(face_landmarks[facial_feature][index + 1])*DOWNSCALE_FACTOR, [0, 255, 0], 2) 
         
         face_points = []
         face_box = None
@@ -45,7 +46,8 @@ class face_tracker:
                 right = self.face_locations[0][1] * DOWNSCALE_FACTOR
                 bottom = self.face_locations[0][2] * DOWNSCALE_FACTOR
                 left = self.face_locations[0][3] * DOWNSCALE_FACTOR
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+                if debug:
+                    cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
                 face_points.append(((right + left) / 2, (top + bottom) / 2))
                 face_box = [(top, left), (bottom, right)]
