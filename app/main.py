@@ -47,6 +47,10 @@ print(f'videos found: {video_names}')
 
 if not os.path.exists(f'./temp/'):
     os.mkdir(f'./temp/')
+if not os.path.exists(f'./INPUT_CLIPS/'):
+    os.mkdir(f'./INPUT_CLIPS/')
+if not os.path.exists(f'./OUTPUT_CLIPS/'):
+    os.mkdir(f'./OUTPUT_CLIPS/')
 
 
 def __main__(video_name, video_path, output_path, audio_path):

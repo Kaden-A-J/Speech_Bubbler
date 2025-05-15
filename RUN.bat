@@ -1,1 +1,1 @@
-docker run -e PYTHONUNBUFFERED=1 -v "%~dp0_output":/code/app/res/processed speech_bubbler
+docker run -e PYTHONUNBUFFERED=1 -v "%~dp0OUTPUT_CLIPS":/code/OUTPUT_CLIPS -v "%~dp0INPUT_CLIPS":/code/INPUT_CLIPS speech_bubbler
