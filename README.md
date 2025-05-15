@@ -1,12 +1,12 @@
 # Speech Bubbler
-A python app that takes input video file(s) and generates a modified version with speech bubbles originating from any speaker.
+A python app that takes input video file(s) and generates a modified version with speech bubbles originating from a speaker.
 
 
 ## Usage
 - Install using one of the methods listed under **Installing**
-- Place desired .mp4 file(s) in ```/app/res/video/```
+- Place desired .mp4 file(s) in ```./INPUT_CLIPS/```
 - Run the app according to how you installed it
-- Output is placed in ```/_output/``` (in the root folder)
+- Output is placed in ```./OUTPUT_CLIPS```
 
 ---
 

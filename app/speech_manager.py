@@ -4,9 +4,7 @@ import cv2
 import os
 
 
-def transcribe_file(video_name, verbose=False):
-    video_path = f'./app/res/video/{video_name}.mp4'
-    audio_path = f'./app/res/audio/{video_name}.wav'
+def transcribe_file(video_path, audio_path, verbose=False):
 
     if not os.path.exists(video_path):
         print(video_path)

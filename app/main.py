@@ -33,25 +33,32 @@ DEBUG_BUBBLE_POS = False
 video_names = []
 video_paths = []
 audio_paths = []
-for c_video_name in os.listdir('./app/res/video/'):
+output_paths = []
+for c_video_name in os.listdir('./INPUT_CLIPS/'):
+    if '.mp4' not in c_video_name[-4:]:
+        continue
     no_extension_vid_name = c_video_name[:-4]
     video_names.append(no_extension_vid_name)
-    video_paths.append(f'./app/res/video/{no_extension_vid_name}.mp4')
-    audio_paths.append(f'./app/res/audio/{no_extension_vid_name}.wav')
+    video_paths.append(f'./INPUT_CLIPS/{no_extension_vid_name}.mp4')
+    output_paths.append(f'./OUTPUT_CLIPS/{no_extension_vid_name}_processed.mp4')
+    audio_paths.append(f'./temp/{no_extension_vid_name}.wav')
 
 print(f'videos found: {video_names}')
 
+if not os.path.exists(f'./temp/'):
+    os.mkdir(f'./temp/')
 
-def __main__(video_name, video_path, audio_path):
+
+def __main__(video_name, video_path, output_path, audio_path):
     cap = cv2.VideoCapture(video_path)
 
     bounding_box = [cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT)]
     fps = cap.get(cv2.CAP_PROP_FPS)
-    audioless_path = f'./{video_name}_audioless.mp4'
+    audioless_path = f'./temp/{video_name}_audioless.mp4'
     writer = cv2.VideoWriter(audioless_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (int(bounding_box[0]), int(bounding_box[1])))
 
     _face_tracker = face_tracking.face_tracker()
-    transcription = speech_manager.transcribe_file(video_name=video_name)
+    transcription = speech_manager.transcribe_file(video_path, audio_path)
     _bubble_manager = bubble_manager.bubble_manager(bounding_box, transcription)
 
     text = ''
@@ -100,10 +107,12 @@ def __main__(video_name, video_path, audio_path):
     video = mp.VideoFileClip(audioless_path)
     video.audio = audio
 
-    video.write_videofile(f'app/res/processed/{video_name}_processed.mp4')
+    video.write_videofile(output_path)
 
     if os.path.exists(audioless_path):
         os.remove(audioless_path)
+    if os.path.exists(audio_path):
+        os.remove(audio_path)
 
 
 def frame_count(video_path, manual=False):
@@ -130,5 +139,6 @@ def frame_count(video_path, manual=False):
     return frames
 
 
+
 for idx, vid in enumerate(video_names):
-    __main__(video_names[idx], video_paths[idx], audio_paths[idx])
+    __main__(video_names[idx], video_paths[idx], output_paths[idx], audio_paths[idx])
