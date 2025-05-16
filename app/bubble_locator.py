@@ -49,7 +49,6 @@ class bubble_locator():
             self.bubble_far_movement_counter += 1
             if self.bubble_far_movement_counter >= BUBBLE_FAR_MOVEMENT_FRAMES:
                 self.furthest_point = new_furthest_point
-                self.smoothed_furthest_point = new_furthest_point
                 self.bubble_far_movement_counter = 0
         else:
             self.furthest_point = new_furthest_point

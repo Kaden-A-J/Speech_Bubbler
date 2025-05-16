@@ -38,7 +38,7 @@ def project_speech_recognition(frame, video_capture, transcription, frame_no=0, 
         text_y = 60
 
         if frame_info:
-            cv2.putText(frame,f"frame: {str(frame_no)} - timestamp: {str(curr_timestamp)}", 
+            cv2.putText(frame,f"frame: {str(frame_no)} - timestamp: {str(curr_timestamp)[:4]}", 
                 (10,text_y), 
                 font, 
                 fontScale,

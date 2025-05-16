@@ -27,7 +27,7 @@ import os
 
 
 VERBOSE = True
-DEBUG_BUBBLE_POS = False
+VISUAL_DEBUG = False
 
 
 video_names = []
@@ -76,13 +76,13 @@ def __main__(video_name, video_path, output_path, audio_path):
         frame_exists, frame = cap.read()
 
         if frame_exists:
-            frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, frame_no=frame_no, features=False, box=True, debug=False)
+            frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, frame_no=frame_no, features=False, box=True, debug=VISUAL_DEBUG)
 
             _bubble_manager.update(face_points, [face_box_top_left, face_box_bottom_right], frame_no)
 
             frame = _bubble_manager.project_bubble(frame, cap)
 
-            if DEBUG_BUBBLE_POS:
+            if VISUAL_DEBUG:
                 for point in face_points:
                     cv2.circle(frame, (int(point[0]), int(point[1])), 10, (0, 255, 0), -1)
 

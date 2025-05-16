@@ -6,5 +6,5 @@ __pycache__
 *.wav
 .venv/
 *output
-!moby_dick_10sec.mp4
+!cat_in_the_hat.mp4
 *audioless*
