@@ -27,7 +27,31 @@ class bubble_locator():
         self.points = self.distribute_points(self.bounding_box[0], self.bounding_box[1], num_points, 0.1)
 
 
-    def update(self, face_points):
+    def bounding_box_collision(self, box1, box2):
+        """
+        Checks if two bounding boxes are colliding.
+
+        Args:
+            box1 (top_left, bottom_right): Bounding box one.
+            box2 (top_left, bottom_right): Bounding box two.
+
+        Returns:
+            Boolean True or False depending on if the boxes are colliding or not.
+        """
+        # Unpack coordinates
+        (x1_top_left, y1_top_left), (x1_bottom_right, y1_bottom_right) = box1
+        (x2_top_left, y2_top_left), (x2_bottom_right, y2_bottom_right) = box2
+
+        # General collision check
+        if x1_bottom_right >= x2_top_left and x1_top_left <= x2_bottom_right and \
+        y1_bottom_right >= y2_top_left and y1_top_left <= y2_bottom_right:
+            return True
+
+        # If none of the separation checks passed, the boxes are colliding
+        return True
+
+
+    def update(self, face_points, face_bounding_box, bubble_bounding_box):
         if self.frame_count % 60 == 0:
             self.reset_points(self.num_points)
 
@@ -47,7 +71,11 @@ class bubble_locator():
         if furthest_points_difference > np.abs(np.sqrt(self.bounding_box[0]**2 + self.bounding_box[1]**2)) / 4:
             # don't update furthest point
             self.bubble_far_movement_counter += 1
-            if self.bubble_far_movement_counter >= BUBBLE_FAR_MOVEMENT_FRAMES:
+
+            print(face_bounding_box, self.bounding_box)
+
+            # if time elapsed or face moves directly behind the bubble let it move a far distance
+            if self.bubble_far_movement_counter >= BUBBLE_FAR_MOVEMENT_FRAMES or self.bounding_box_collision(face_bounding_box, bubble_bounding_box):
                 self.furthest_point = new_furthest_point
                 self.bubble_far_movement_counter = 0
         else:
@@ -63,6 +91,8 @@ class bubble_locator():
             # self.smoothed_furthest_point = self.furthest_point
 
         self.frame_count += 1
+
+        return self.get_bubble_location()
     
 
     def get_bubble_location(self):

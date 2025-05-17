@@ -78,9 +78,7 @@ def __main__(video_name, video_path, output_path, audio_path):
         if frame_exists:
             frame, face_points, (face_box_top_left, face_box_bottom_right) = _face_tracker.project_face_tracking(frame, frame_no=frame_no, features=False, box=True, debug=VISUAL_DEBUG)
 
-            _bubble_manager.update(face_points, [face_box_top_left, face_box_bottom_right], frame_no)
-
-            frame = _bubble_manager.project_bubble(frame, cap)
+            frame = _bubble_manager.update(face_points, [face_box_top_left, face_box_bottom_right], frame_no, frame, cap)
 
             if VISUAL_DEBUG:
                 for point in face_points:
