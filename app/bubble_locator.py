@@ -72,8 +72,6 @@ class bubble_locator():
             # don't update furthest point
             self.bubble_far_movement_counter += 1
 
-            print(face_bounding_box, self.bounding_box)
-
             # if time elapsed or face moves directly behind the bubble let it move a far distance
             if self.bubble_far_movement_counter >= BUBBLE_FAR_MOVEMENT_FRAMES or self.bounding_box_collision(face_bounding_box, bubble_bounding_box):
                 self.furthest_point = new_furthest_point

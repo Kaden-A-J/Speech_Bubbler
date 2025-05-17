@@ -90,7 +90,7 @@ def __main__(video_name, video_path, output_path, audio_path):
                 cv2.circle(frame, (int(_bubble_manager.bubble_locator.smoothed_furthest_point[0]), int(_bubble_manager.bubble_locator.smoothed_furthest_point[1])), 10, (255, 0, 0), -1)
                 cv2.circle(frame, (int(_bubble_manager.bubble_locator.furthest_point[0]), int(_bubble_manager.bubble_locator.furthest_point[1])), 10, (255, 255, 0), -1)
 
-                frame = speech_manager.project_speech_recognition(frame, cap, transcription, frame_no)
+            frame = speech_manager.project_speech_recognition(frame, cap, transcription, frame_no)
 
             writer.write(frame)
 
