@@ -1,6 +1,7 @@
 # Speech Bubbler
 A python app that takes input video file(s) and generates a modified version with speech bubbles originating from a speaker.
 
+![Image](https://github.com/user-attachments/assets/31a817aa-021f-4d5b-bcb5-527a90e2ea27)
 
 ## Usage
 - Install using one of the methods listed under **Installing**
