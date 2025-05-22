@@ -7,7 +7,7 @@ A python app that takes input video file(s) and generates a modified version wit
 - Install using one of the methods listed under **Installing**
 - Place desired .mp4 file(s) in ```./INPUT_CLIPS/```
 - Run the app according to how you installed it
-- Output is placed in ```./OUTPUT_CLIPS```
+- Output is placed in ```./OUTPUT_CLIPS/```
 
 ---
 
